@@ -35,14 +35,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
   override func sourceURL(for bridge: RCTBridge) -> URL? {
-    self.bundleURL()
+    bundleURL()
   }
 
   override func bundleURL() -> URL? {
 #if DEBUG
-    RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
+    return RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
 #else
-    Bundle.main.url(forResource: "main", withExtension: "jsbundle")
+    // Documents directory
+    let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+    let otaURL = docs?
+      .appendingPathComponent("ota")
+      .appendingPathComponent("current")
+      .appendingPathComponent("index.bundle")
+
+    if let otaURL = otaURL, FileManager.default.fileExists(atPath: otaURL.path) {
+      return otaURL
+    }
+
+    return Bundle.main.url(forResource: "main", withExtension: "jsbundle")
 #endif
   }
 }
